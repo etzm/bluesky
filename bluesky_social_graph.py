@@ -106,7 +106,7 @@ class BlueskyClient:
         self.session.headers.update(
             {"Authorization": f"Bearer {self.access_token}"}
         )
-        print(f"Authenticated as {data['handle']} ({self.did})")
+        print(f"Authenticated as {data['handle']} ({self.did})", flush=True)
 
     @property
     def base_url(self) -> str:
@@ -119,6 +119,7 @@ class BlueskyClient:
         resp = self.session.get(
             f"{PUBLIC_API}/app.bsky.actor.getProfile",
             params={"actor": actor},
+            timeout=15,
         )
         resp.raise_for_status()
         d = resp.json()
@@ -146,7 +147,8 @@ class BlueskyClient:
                 params["cursor"] = cursor
 
             resp = self.session.get(
-                f"{self.base_url}/{endpoint}", params=params
+                f"{self.base_url}/{endpoint}", params=params,
+                timeout=15,
             )
             resp.raise_for_status()
             data = resp.json()
@@ -164,6 +166,7 @@ class BlueskyClient:
 
             cursor = data.get("cursor")
             page += 1
+            print(f"    page {page}: {len(entries)} total so far...", flush=True)
             if not cursor:
                 break
 
